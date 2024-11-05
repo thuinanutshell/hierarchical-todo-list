@@ -18,6 +18,7 @@ backend/
 
 ### Frontend
 
+```
 frontend/
 ├── node_modules/
 ├── public/
@@ -52,5 +53,6 @@ frontend/
 ├── package-lock.json
 ├── package.json
 └── README.md
+```
 
 ## Required Features
