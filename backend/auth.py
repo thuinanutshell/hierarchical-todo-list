@@ -86,4 +86,5 @@ def logout():
         logout_user()
         return jsonify({"message": "Logged out successfully!"}), 200
     except Exception as e:
+        # Return a JSON response with an error message and a 400 Bad Request status code
         return jsonify({"message": f"Error logging out: {e}"}), 400

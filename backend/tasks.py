@@ -2,10 +2,10 @@ from flask import jsonify, request, Blueprint
 from models import Tasks, db
 from flask_login import login_required, current_user
 
+# Create a Blueprint for task-related routes
 bp_task = Blueprint("task", __name__)
 
-
-# post a new task to the database
+# Route to add a new task to the database
 @bp_task.route("/add_task", methods=["POST"])
 def add_task():
     """
@@ -14,26 +14,35 @@ def add_task():
     Returns:
         A JSON response containing a success or failure message and a status code.
     """
+    # Define success and failure messages and status codes
     success_message = "Successfully added task to the database."
     failure_message = "Failed to add task to the database."
     success_status = 200
+    failure_status = 400
 
     try:
+        # Get the task data from the request
         task_data = request.get_json()
+
+        # Create a new task object
         new_task = Tasks(
             name=task_data["name"],
             list_id=task_data["id"],
             task_depth=0,
             parent_id=None,
         )
+
+        # Add the new task to the database session and commit
         db.session.add(new_task)
         db.session.commit()
-        print(f"User {current_user.username} added a new task. ")
-        return jsonify({"message": success_message}), success_status
 
+        # Log the action and return a success response
+        print(f"User {current_user.username} added a new task.")
+        return jsonify({"message": success_message}), success_status
     except Exception as e:
-        print(f"User {current_user.username}: Error adding task to the database: ", e)
-        return jsonify({"message": f"{failure_message}. error is {e}"}), 400
+        # Log the error and return a failure response
+        print(f"Error adding task: {e}")
+        return jsonify({"message": failure_message}), failure_status
 
 
 # update task in the database

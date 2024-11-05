@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
-import DraggableBoard from "./components/DraggableBoard";
 import Navbar from "./components/NavBar"; // Updated import path
 import NotFoundPage from "./components/NotFoundPage";
+import TaskColumn from "./components/TaskColumn";
 import ApiProvider from "./contexts/ApiProvider";
 import AuthProvider from "./contexts/AuthContext";
 import "./index.css";
@@ -60,7 +60,7 @@ const App = () => {
             <Routes>
               <Route
                 path="/"
-                element={<DraggableBoard data={data} setData={setData} />}
+                element={<TaskColumn data={data} setData={setData} />}
               />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />

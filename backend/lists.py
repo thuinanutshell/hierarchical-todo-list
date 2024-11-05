@@ -2,10 +2,10 @@ from flask import jsonify, request, Blueprint
 from models import Lists, db
 from flask_login import login_required, current_user
 
+# Create a Blueprint for list-related routes
 bp_list = Blueprint("list", __name__)
 
-
-# get all the user lists from the database
+# Route to get all the user lists from the database
 @bp_list.route("/lists", methods=["GET"])
 @login_required
 def get_all_lists():
@@ -17,31 +17,28 @@ def get_all_lists():
         If the user is not authenticated, returns a JSON response with an error message and a 401 status code.
         If there is an error retrieving the lists, returns a JSON response with an error message and a 400 status code.
     """
+    # Check if the user is authenticated
     if not current_user.is_authenticated:
         print("Non-authenticated user tried to fetch all lists")
         return jsonify({"message": "User is not authenticated"}), 401
+
+    # Define success and failure messages and status codes
     success_message = "Successfully retrieved all lists from the database."
     failure_message = "Failed to retrieve all lists from the database."
     success_status = 200
+
     try:
+        # Query the database for all lists belonging to the authenticated user, ordered by order_index
         lists = (
             Lists.query.filter_by(user_id=current_user.id)
             .order_by(Lists.order_index)
             .all()
         )
         print(f"User {current_user.username} fetched all of their lists")
-        return (
-            jsonify(
-                {
-                    "message": success_message,
-                    "lists": [list.to_dict() for list in lists],
-                }
-            ),
-            success_status,
-        )
+        return jsonify({"message": success_message, "lists": [list.to_dict() for list in lists]}), success_status
     except Exception as e:
-        print(f"User {current_user.username}. Error fetching all of their lists: ", e)
-        return jsonify({"message": f"{failure_message}. error is {e}"}), 400
+        print(f"Error retrieving lists for user {current_user.username}: {e}")
+        return jsonify({"message": failure_message}), 400
 
 
 # post a new list to the database
