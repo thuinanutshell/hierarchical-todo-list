@@ -1,72 +1,87 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { FaPencilAlt } from "react-icons/fa";
 import { useApi } from "../../contexts/ApiProvider";
 
-const EditList = ({ columnId, initialName, onUpdateLists }) => {
-  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
-  const [editedName, setEditedName] = useState(initialName);
-  const [isNameValid, setNameValid] = useState(true);
+/**
+ * EditList component for editing a list's name.
+ * 
+ * This component renders a button to open a modal for editing a list's name.
+ * 
+ * @param {Object} props - The component props.
+ * @param {string} props.list_id - The ID of the list to edit.
+ * @param {string} props.currentName - The current name of the list.
+ * @param {Function} props.onUpdateLists - The function to call after editing the list.
+ * @returns {JSX.Element} - The EditList component.
+ */
+const EditList = ({ list_id, currentName, onUpdateLists }) => {
+  // State to manage the modal visibility
+  const [showModal, setShowModal] = useState(false);
+  // State to manage the edited list name
+  const [editedName, setEditedName] = useState(currentName);
+
+  // ApiProvider context for making API requests
   const api_provider = useApi();
 
-  const handleOpenEditDialog = () => {
-    setEditDialogOpen(true);
+  /**
+   * Handles the change in the list name input field.
+   * 
+   * @param {Object} e - The event object.
+   */
+  const handleNameChange = (e) => {
+    setEditedName(e.target.value);
   };
 
-  const handleCloseEditDialog = () => {
-    setEditDialogOpen(false);
-  };
-
+  /**
+   * Handles the confirmation of the list name edit.
+   * 
+   * This function makes an API request to update the list name and calls the onUpdateLists function
+   * to update the list of lists after editing.
+   */
   const handleConfirmEdit = async () => {
-    if (!editedName.trim()) {
-      setNameValid(false);
-      return;
-    }
     try {
-      const response = await api_provider.patch("/update_list_name", {
-        id: columnId,
-        name: editedName,
-      });
-      if (response.ok) {
-        console.log("Successfully updated column name.");
-        onUpdateLists();
-      } else {
-        console.error("Failed to update column name.");
+      // Make API request to update the list name
+      const response = await api_provider.put("/edit_list/" + list_id, { name: editedName });
+
+      if (!response.ok) {
+        throw new Error("Failed to edit the list.");
       }
+
+      // Call the onUpdateLists function to update the list of lists
+      onUpdateLists();
+      // Close the modal
+      setShowModal(false);
     } catch (error) {
-      console.error("Error updating column name:", error);
+      console.error("Error editing the list:", error);
+      // Optionally: Show an error message to the user.
     }
-    handleCloseEditDialog();
   };
 
   return (
     <>
-      <Button variant="link" onClick={handleOpenEditDialog}>
-        <FaPencilAlt />
+      <Button variant="warning" onClick={() => setShowModal(true)}>
+        Edit
       </Button>
-      <Modal show={isEditDialogOpen} onHide={handleCloseEditDialog}>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Edit list name</Modal.Title>
+          <Modal.Title>Edit List</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group controlId="editedName">
-            <Form.Label>Name</Form.Label>
-            <Form.Control
-              type="text"
-              value={editedName}
-              onChange={(e) => {
-                setNameValid(true);
-                setEditedName(e.target.value);
-              }}
-              isInvalid={!isNameValid}
-            />
-            <Form.Control.Feedback type="invalid">
-              List name cannot be empty
-            </Form.Control.Feedback>
-          </Form.Group>
+          <Form>
+            <Form.Group controlId="formListName">
+              <Form.Label>List Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={editedName}
+                onChange={handleNameChange}
+                placeholder="Enter new list name"
+              />
+            </Form.Group>
+          </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseEditDialog}>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
           <Button

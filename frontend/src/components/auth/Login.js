@@ -7,15 +7,20 @@ import { AuthContext } from "../../contexts/AuthContext";
 import AlertMessage from "./AlertMessage";
 
 /**
- * Login component that allows users to log in to the application.
- * @returns {JSX.Element} Login form component.
+ * Login Component
+ * 
+ * This component renders a login form and handles user authentication.
+ * 
+ * @returns {JSX.Element} The Login component.
  */
 const Login = () => {
+  // State to manage form data
   const [formData, setFormData] = useState({
     login: "",
     password: "",
   });
 
+  // State to manage alert messages
   const [alert, setAlert] = useState({
     key: Date.now(),
     open: false,
@@ -23,12 +28,16 @@ const Login = () => {
     severity: "error",
   });
 
+  // Hooks for navigation and API context
   const navigate = useNavigate();
   const api = useApi();
-  const { login } = useContext(AuthContext); // Removed isLoggedIn
+  const { login } = useContext(AuthContext);
 
   /**
-   * Handles changes to the form data.
+   * Handle input change
+   * 
+   * This function updates the form data state when the user types in the input fields.
+   * 
    * @param {Object} e - The event object.
    */
   const handleChange = (e) => {
@@ -36,11 +45,6 @@ const Login = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  /**
-   * Triggers an alert message.
-   * @param {string} message - The message to display in the alert.
-   * @param {string} severity - The severity of the alert (error, warning, info, success).
-   */
   const triggerAlert = (message, severity = "error") => {
     setAlert({
       key: Date.now(),
@@ -50,10 +54,6 @@ const Login = () => {
     });
   };
 
-  /**
-   * Handles form submission.
-   * @param {Object} e - The event object.
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -71,6 +71,7 @@ const Login = () => {
 
   return (
     <Container>
+      {/* Form layout and components */}
       <Row className="justify-content-md-center">
         <Col md={6}>
           <div className="p-4 mt-3 border rounded">

@@ -6,6 +6,9 @@ import AlertMessage from "./AlertMessage";
 
 /**
  * Register component for user registration.
+ * 
+ * This component renders a registration form and handles user registration.
+ * 
  * @returns {JSX.Element} JSX element containing the registration form.
  */
 const Register = () => {
@@ -18,6 +21,7 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
+
   const [alert, setAlert] = useState({
     key: Date.now(),
     open: false,
@@ -31,8 +35,11 @@ const Register = () => {
   const api = useApi();
 
   /**
-   * Event handler for input change.
-   * @param {Object} e - Event object.
+   * Handle input change
+   * 
+   * This function updates the form data state when the user types in the input fields.
+   * 
+   * @param {Object} e - The event object.
    */
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,6 +80,7 @@ const Register = () => {
 
   return (
     <Container>
+      {/* Form layout and components */}
       <Row className="justify-content-md-center">
         <Col md={6}>
           <div className="p-4 mt-3 border rounded">

@@ -4,18 +4,24 @@ import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { useApi } from "../../contexts/ApiProvider";
 
 /**
- * Renders a form to add a new task to a list.
+ * AddTaskForm component for adding a new task to a list.
+ * 
+ * This component renders a form to add a new task and handles the form submission.
+ * 
  * @param {Object} props - The component props.
  * @param {Function} props.onUpdateLists - The function to call when a new task is added.
  * @param {string} props.listID - The ID of the list to which the task will be added.
- * @returns {JSX.Element} - The JSX element for the AddTaskForm component.
+ * @returns {JSX.Element} - The AddTaskForm component.
  */
 function AddTaskForm({ onUpdateLists, listID }) {
+  // State to manage the task name input
   const [taskName, setTaskName] = useState("");
+  // State to manage the validity of the task name input
   const [isNameValid, setNameValid] = useState(true);
 
   /**
-   * Updates the task name state when the input value changes.
+   * Handles changes to the task name input field.
+   * 
    * @param {Object} e - The event object.
    */
   const handleTaskNameChange = (e) => {
@@ -23,18 +29,24 @@ function AddTaskForm({ onUpdateLists, listID }) {
     setTaskName(e.target.value);
   };
 
+  // ApiProvider context for making API requests
   const api_provider = useApi();
 
   /**
-   * Sends a POST request to add a new task to the list.
+   * Adds a new task to the list.
+   * 
+   * This function makes an API request to add the new task and calls the onUpdateLists function
+   * to update the list of tasks after adding.
    */
   async function addTask() {
+    // Validate task name
     if (!taskName.trim()) {
       setNameValid(false); // Set the validation state to false
       return;
     }
 
     try {
+      // Make API request to add the new task
       const new_task = await api_provider.post("/add_task", {
         name: taskName,
         id: listID,
@@ -42,54 +54,40 @@ function AddTaskForm({ onUpdateLists, listID }) {
 
       if (new_task.ok) {
         // Check if the response is ok
-        console.log("Task added successfully:", new_task);
-        setTaskName(""); // Reset the task name
-        onUpdateLists(); // Update the lists
+        onUpdateLists(); // Call the onUpdateLists function to update the list of tasks
+        setTaskName(""); // Reset the task name input
       } else {
-        console.error("Failed to add task:", new_task);
-        // Handle specific error response or show generic error message
+        // Handle error response
+        console.error("Failed to add task");
       }
     } catch (error) {
-      console.error("Error while adding task:", error.message);
-      // You might want to inform the user that something went wrong.
+      console.error("An error occurred while adding the task:", error);
+      // Optionally: Show an error message to the user.
     }
   }
 
-  /**
-   * Handles the form submit event.
-   * @param {Object} e - The event object.
-   */
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    addTask();
-  };
-
   return (
     <Container>
+      {/* Form layout and components */}
       <Row className="justify-content-md-center">
-        <Col md={12}>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="taskName">
-              <Form.Label></Form.Label>
-              <Row>
-                <Col md={8}>
-                  <Form.Control
-                    type="text"
-                    value={taskName}
-                    onChange={handleTaskNameChange}
-                    isInvalid={!isNameValid}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a valid task name.
-                  </Form.Control.Feedback>
-                </Col>
-                <Col md={4}>
-                  <Button type="submit" variant="primary" className="w-100">
-                    Add Task
-                  </Button>
-                </Col>
-              </Row>
+        <Col md="4">
+          <Form onSubmit={(e) => { e.preventDefault(); addTask(); }}>
+            <Form.Group controlId="formTaskName">
+              <Form.Label>Task Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={taskName}
+                onChange={handleTaskNameChange}
+                placeholder="Enter task name"
+                isInvalid={!isNameValid}
+              />
+              <Form.Control.Feedback type="invalid">
+                Please provide a valid task name.
+              </Form.Control.Feedback>
             </Form.Group>
+            <Button variant="primary" type="submit">
+              Add Task
+            </Button>
           </Form>
         </Col>
       </Row>

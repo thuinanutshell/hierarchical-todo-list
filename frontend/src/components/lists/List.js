@@ -7,16 +7,18 @@ import DeleteList from "./DeleteList";
 import EditList from "./EditList";
 
 /**
- * Renders a single list component with its tasks and associated actions.
+ * List component for rendering a draggable list with tasks.
+ * 
  * @param {Object} props - The component props.
- * @param {number} props.id - The unique identifier of the list.
+ * @param {string} props.id - The ID of the list.
  * @param {string} props.name - The name of the list.
- * @param {Array} props.tasks - The array of tasks associated with the list.
- * @param {number} props.index - The index of the list in the list of draggable components.
- * @param {function} props.onUpdateLists - The function to update the list of lists.
- * @returns {JSX.Element} - The JSX element representing the list component.
+ * @param {Object[]} props.tasks - An array of task objects.
+ * @param {number} props.index - The index of the list in the draggable context.
+ * @param {Function} props.onUpdateLists - The function to call when the list is updated.
+ * @returns {JSX.Element} - The List component.
  */
 const List = ({ id, name, tasks, index, onUpdateLists }) => {
+  // Styles for the list container
   const listStyles = {
     width: "25vw",
     minWidth: "250px",

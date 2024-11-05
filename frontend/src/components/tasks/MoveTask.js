@@ -1,54 +1,54 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button, ListGroup, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { useApi } from "../../contexts/ApiProvider";
 
 /**
- * Renders a dialog that allows the user to move a task to a different list.
+ * MoveTask component for moving a task to a different list.
+ * 
+ * This component renders a modal with a list of available lists to move the task to.
+ * 
  * @param {Object} props - The component props.
- * @param {Object} props.task - The task to be moved.
- * @param {boolean} props.open - Whether the dialog is open or not.
- * @param {Function} props.onClose - The function to call when the dialog is closed.
- * @param {Function} props.fetchLists - The function to call to fetch the updated list of tasks.
+ * @param {boolean} props.show - Whether the modal is visible or not.
+ * @param {Function} props.onClose - The function to call to close the modal.
+ * @param {Object[]} props.lists - An array of list objects.
+ * @param {string} props.taskID - The ID of the task to move.
+ * @param {Function} props.onUpdateLists - The function to call when the task is moved.
  * @returns {JSX.Element} - The MoveTask component.
  */
-const MoveTask = ({ task, open, onClose, fetchLists }) => {
-  const [lists, setLists] = useState([]);
-  const api = useApi();
-
-  useEffect(() => {
-    const storedColumns = localStorage.getItem("columns");
-    if (storedColumns) {
-      const allLists = Object.values(JSON.parse(storedColumns));
-      const filteredLists = allLists.filter((list) => list.id !== task.list_id); // Filter out the current list
-      setLists(filteredLists);
-    }
-  }, [open, task.list_id]); // Added task.list_id dependency
+const MoveTask = ({ show, onClose, lists, taskID, onUpdateLists }) => {
+  // ApiProvider context for making API requests
+  const api_provider = useApi();
 
   /**
-   * Moves the task to the specified list.
-   * @param {number} targetListId - The ID of the list to move the task to.
-   * @returns {Promise<void>} - A Promise that resolves when the task has been moved.
+   * Handles the task move to a different list.
+   * 
+   * This function makes an API request to move the task and calls the onUpdateLists function
+   * to update the list of tasks after moving.
+   * 
+   * @param {string} listID - The ID of the list to move the task to.
    */
-  const handleMoveTask = async (targetListId) => {
+  const handleMoveTask = async (listID) => {
     try {
-      const response = await api.patch(`/tasks/${task.id}/move`, {
-        list_id: targetListId,
-      });
+      // Make API request to move the task
+      const response = await api_provider.put("/move_task/" + taskID, { list_id: listID });
 
-      if (response.ok) {
-        fetchLists();
-        onClose();
-      } else {
-        console.error("Failed to move task");
+      if (!response.ok) {
+        throw new Error("Failed to move the task.");
       }
+
+      // Call the onUpdateLists function to update the list of tasks
+      onUpdateLists();
+      // Close the modal
+      onClose();
     } catch (error) {
-      console.error("Error moving task:", error);
+      console.error("Error moving the task:", error);
+      // Optionally: Show an error message to the user.
     }
   };
 
   return (
-    <Modal show={open} onHide={onClose}>
+    <Modal show={show} onHide={onClose}>
       <Modal.Header closeButton>
         <Modal.Title>Move Task</Modal.Title>
       </Modal.Header>

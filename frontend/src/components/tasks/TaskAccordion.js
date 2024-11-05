@@ -2,15 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useApi } from "../../contexts/ApiProvider";
 import TaskActions from "./TaskActions";
 
-/**
- * A component that displays a task and its subtasks in an accordion format.
- * @param {Object} props - The component props.
- * @param {Object} props.task - The task to display.
- * @param {Function} props.onUpdateLists - A function to update the task lists.
- * @returns {JSX.Element} - The JSX element for the task accordion.
- */
+
 const TaskAccordion = ({ task, onUpdateLists }) => {
-  // Component state
   const [isEditing, setIsEditing] = useState(false);
   const [newTaskName, setNewTaskName] = useState(task.name);
   const [expanded, setExpanded] = useState(false);
@@ -19,12 +12,6 @@ const TaskAccordion = ({ task, onUpdateLists }) => {
   const hasSubtasks = task.subtasks && task.subtasks.length > 0;
   const api = useApi();
 
-  /**
-   * Handles the checkbox change event for a task.
-   * @param {number} taskId - The ID of the task.
-   * @param {boolean} newStatus - The new status of the task.
-   * @returns {Promise<void>} - A promise that resolves when the task is updated.
-   */
   const handleCheckboxChange = async (taskId, newStatus) => {
     try {
       await api.patch("/tasks/" + taskId + "/update", {

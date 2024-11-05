@@ -5,16 +5,20 @@ import { useApi } from "../../contexts/ApiProvider";
 
 /**
  * Renders a form to add a new list.
+ * 
  * @param {Object} props - The component props.
  * @param {Function} props.onUpdateLists - The function to call when a new list is added.
  * @returns {JSX.Element} - The JSX element representing the component.
  */
 function AddList({ onUpdateLists }) {
+  // State to manage the list name input
   const [listName, setListName] = useState("");
+  // State to manage the validity of the list name input
   const [isNameValid, setNameValid] = useState(true);
 
   /**
    * Handles changes to the list name input field.
+   * 
    * @param {Object} e - The event object.
    */
   const handleListNameChange = (e) => {
@@ -22,51 +26,64 @@ function AddList({ onUpdateLists }) {
     setListName(e.target.value);
   };
 
+  // ApiProvider context for making API requests
   const api_provider = useApi();
 
   /**
    * Adds a new list to the database.
+   * 
    * @param {Object} e - The event object.
    */
   async function addList(e) {
     e.preventDefault();
 
-    if (!listName.trim()) {
+    // Validate list name
+    if (listName.trim() === "") {
       setNameValid(false);
       return;
     }
 
-    const list = await api_provider.post("/add_list", { name: listName });
-    onUpdateLists(list);
-    setListName("");
+    try {
+      // Make API request to add the new list
+      const response = await api_provider.post("/lists", { name: listName });
+      if (response.ok) {
+        // Call the onUpdateLists function to update the list of lists
+        onUpdateLists();
+        // Reset the list name input
+        setListName("");
+      } else {
+        // Handle error response
+        console.error("Failed to add list");
+      }
+    } catch (error) {
+      // Handle network or other errors
+      console.error("An error occurred while adding the list:", error);
+    }
   }
 
   return (
-    <Container className="mt-3">
+    <Container>
+      {/* Form layout and components */}
       <Row className="justify-content-md-center">
-        <Col md={6}>
+        <Col md="4">
+          <h2>Add New List</h2>
           <Form onSubmit={addList}>
-            <Form.Group controlId="listName">
-              <Form.Label></Form.Label>
-              <Row>
-                <Col md={8}>
-                  <Form.Control
-                    type="text"
-                    value={listName}
-                    onChange={handleListNameChange}
-                    isInvalid={!isNameValid}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a valid list name.
-                  </Form.Control.Feedback>
-                </Col>
-                <Col md={4}>
-                  <Button type="submit" variant="primary" className="w-100">
-                    Add List
-                  </Button>
-                </Col>
-              </Row>
+            <Form.Group controlId="formListName">
+              <Form.Label>List Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={listName}
+                onChange={handleListNameChange}
+                placeholder="Enter list name"
+                isInvalid={!isNameValid}
+              />
+              <Form.Control.Feedback type="invalid">
+                Please provide a valid list name.
+              </Form.Control.Feedback>
             </Form.Group>
+            <Button variant="primary" type="submit">
+              Add List
+            </Button>
           </Form>
         </Col>
       </Row>
